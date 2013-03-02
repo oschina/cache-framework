@@ -6,9 +6,8 @@ import java.util.Map;
 /**
  * 缓存实现
  * @author Winter Lau
- *
  */
-public class OSCache implements Cache {
+public class OSCache implements CacheHolder {
 
 	private String name;
 	private int size;

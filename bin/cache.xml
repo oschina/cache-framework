@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oscache>
+
+	<provider name="ram" class="net.oschina.common.cache.provider.RamCache"/>
+
+	<provider name="disk" class="net.oschina.common.cache.provider.DiskCache">
+    	<path>java.io.tmpdir</path>  	
+	</provider>
+
+	<provider name="redis" class="net.oschina.common.cache.provider.RedisCache">
+		<host>192.168.1.10</host>
+		<port>5555</port>	    	
+	</provider>
+	
+	<!--
+		size: 在内存最多存储对象的个数
+		ttl: 缓存对象的失效时间(单位:秒),0 表示永不失效 
+	-->	
+    <defaultCache size="1000" ttl="120" />
+    
+    <cache name="beans" size="1000" ttl="0" />
+    <cache name="User" 	size="2000" ttl="120" />
+	
+</oscache>

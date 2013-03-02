@@ -2,7 +2,7 @@ package net.oschina.common.cache.provider;
 
 import java.util.Properties;
 
-import net.oschina.common.cache.Cache;
+import net.oschina.common.cache.CacheHolder;
 import net.oschina.common.cache.CacheException;
 import net.oschina.common.cache.CacheProvider;
 
@@ -19,7 +19,7 @@ public class RamCache implements CacheProvider {
 	}
 
 	@Override
-	public Cache get(String regionName) throws CacheException {
+	public CacheHolder get(String regionName) throws CacheException {
 		// TODO Auto-generated method stub
 		return null;
 	}

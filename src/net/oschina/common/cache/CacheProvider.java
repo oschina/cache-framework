@@ -21,7 +21,7 @@ public interface CacheProvider {
 	 * @param regionName the name of the cache region
 	 * @throws CacheException
 	 */
-	public Cache get(String regionName) throws CacheException;
+	public CacheHolder get(String regionName) throws CacheException;
 	
 	/**
 	 * 关闭缓存

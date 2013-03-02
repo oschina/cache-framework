@@ -7,7 +7,7 @@ import java.util.Map;
  * 定义了缓存接口
  * @author liudong
  */
-public interface Cache {
+public interface CacheHolder {
 
 	/**
 	 * 读取缓存对象

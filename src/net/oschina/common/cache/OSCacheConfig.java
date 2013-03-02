@@ -17,11 +17,11 @@ import org.xml.sax.SAXException;
 public class OSCacheConfig {
 
 	private List<CacheProvider> providers;
-	private List<Cache> caches;
+	private List<CacheHolder> caches;
 	
 	private OSCacheConfig(){
 		providers = new ArrayList<CacheProvider>();
-		caches = new ArrayList<Cache>();
+		caches = new ArrayList<CacheHolder>();
 	}
 	
 	public static OSCacheConfig newInstance() throws IOException, SAXException {
@@ -36,7 +36,7 @@ public class OSCacheConfig {
 		providers.add(pvd);
 	}
 	
-	public void addCache(Cache cache) {
+	public void addCache(CacheHolder cache) {
 		caches.add(cache);
 	}
 	
