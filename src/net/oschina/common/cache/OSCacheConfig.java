@@ -54,7 +54,7 @@ public class OSCacheConfig {
 		dig.addSetNext(key, "addProvider");
 
 		key = "oscache/cache";
-		dig.addObjectCreate(key, "class", OSCache.class);
+		dig.addObjectCreate(key, "class", CacheHolderImpl.class);
 		dig.addSetProperties(key);
 		dig.addBeanPropertySetter(key + "/?");
 		dig.addSetNext(key, "addCache");
