@@ -37,6 +37,7 @@ public class OSCacheConfig {
 	}
 	
 	public void addCache(CacheHolder cache) {
+		cache.init();
 		caches.add(cache);
 	}
 	

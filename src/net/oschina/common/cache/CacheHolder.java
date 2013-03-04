@@ -1,7 +1,9 @@
 package net.oschina.common.cache;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 定义了缓存接口
@@ -10,20 +12,25 @@ import java.util.Map;
 public interface CacheHolder {
 
 	/**
+	 * 缓存初始化
+	 */
+	public void init();
+	
+	/**
 	 * 读取缓存对象
 	 * @param key
 	 * @return the cached object or <tt>null</tt>
 	 * @throws CacheException
 	 */
-	public Object get(Object key) throws CacheException;
+	public Object get(Serializable key) throws CacheException;
 	
 	/**
 	 * 批量读取缓存对象
-	 * @param key
+	 * @param keys
 	 * @return
 	 * @throws CacheException
 	 */
-	public List<Object> gets(Object key) throws CacheException;
+	public Map<Serializable,Serializable> gets(List<Serializable> keys) throws CacheException;
 	
 	/**
 	 * 往缓存中存入对象
@@ -32,36 +39,28 @@ public interface CacheHolder {
 	 * @param value
 	 * @throws CacheException
 	 */
-	public void put(Object key, Object value) throws CacheException;
+	public void put(Serializable key, Serializable value) throws CacheException;
 	
 	/**
 	 * 批量存入对象
 	 * @param objs
 	 * @throws CacheException
 	 */
-	public void puts(Map<Object, Object> objs) throws CacheException;
+	public void puts(Map<Serializable, Serializable> objs) throws CacheException;
 	
-	/**
-	 * 更新缓存对象
-	 * @param key
-	 * @param value
-	 * @throws CacheException
-	 */
-	public void update(Object key, Object value) throws CacheException;
-
 	/**
 	 * 获取缓存中所有的键值
 	 * @return
 	 * @throws CacheException
 	 */
-	public List<Object> keys() throws CacheException ;
+	public Set<Serializable> keys() throws CacheException ;
 	
 	/**
 	 * 删除缓存对象
 	 * @param key
 	 * @throws CacheException
 	 */
-	public void remove(Object key) throws CacheException;
+	public void remove(Serializable key) throws CacheException;
 	
 	/**
 	 * 清除所有缓存对象

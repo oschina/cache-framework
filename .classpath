@@ -17,5 +17,6 @@
 	<classpathentry kind="lib" path="lib/minlog-none-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/objenesis-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/reflectasm-1.07.jar"/>
+	<classpathentry kind="lib" path="lib/guava-14.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
