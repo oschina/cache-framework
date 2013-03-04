@@ -6,8 +6,10 @@ package net.oschina.common.cache;
  */
 public class OSChinaCache {
 	
+	private final static OSCacheConfig config = OSCacheConfig.newInstance();
+	
 	public static void main(String[] args) throws Exception {
-		System.out.println(OSCacheConfig.newInstance());
+		System.out.println(config);
 	}
 
 }

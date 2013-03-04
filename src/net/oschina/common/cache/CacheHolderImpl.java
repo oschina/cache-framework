@@ -6,6 +6,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.CacheBuilder;
@@ -19,37 +23,54 @@ import com.google.common.cache.RemovalNotification;
  */
 public class CacheHolderImpl implements CacheHolder {
 
-	private Cache<Serializable, Serializable> cache;
+	private final static Log log = LogFactory.getLog(CacheHolderImpl.class);
 
+	private Cache<Serializable, Serializable> cache;
+	private OverflowCacheHolder overflowCache;	
+	
 	/**
 	 * 缓存初始化
 	 */
-	public void init(){
+	@Override
+	public void init(OSCacheConfig cfg) throws CacheException {
+		
+		if(StringUtils.isNotBlank(this.overflow)){
+			overflowCache = cfg.getHolder(this.overflow);
+			if(overflowCache == null)
+				throw new CacheException("Overflow cache holder not found: " + this.overflow);
+		}
+		
 		CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder();
 		builder.maximumSize(size);
 		if(ttl > 0)
 			builder.expireAfterWrite(ttl, TimeUnit.SECONDS);
 
-		builder.removalListener(new RemovalListener<Serializable, Serializable>() {
-			public void onRemoval(RemovalNotification<Serializable, Serializable> removal) {
-				if(removal.getCause() == RemovalCause.SIZE){//因为超出内存限制被移除
-					//写入到磁盘
+		if(overflowCache != null){
+			builder.removalListener(new RemovalListener<Serializable, Serializable>() {
+				public void onRemoval(RemovalNotification<Serializable, Serializable> removal) {
+					if(removal.getCause() == RemovalCause.SIZE){//因为超出内存限制被移除
+						//写入到磁盘
+					}
+					else 
+					if(removal.getCause() == RemovalCause.REPLACED){//因为替换数据而调用
+						//替换磁盘上的数据
+					}
+					else{
+						//从磁盘上删除
+					}
 				}
-				else 
-				if(removal.getCause() == RemovalCause.REPLACED){//因为替换数据而调用
-					//替换磁盘上的数据
+			});
+			cache = builder.build(new CacheLoader<Serializable, Serializable>() {
+				public Serializable load(Serializable key) throws Exception {
+					//TODO: 从二级缓存中加载
+					return null;
 				}
-				else{
-					//从磁盘上删除
-				}
-			}
-		});
-		cache = builder.build(new CacheLoader<Serializable, Serializable>() {
-			public Serializable load(Serializable key) throws Exception {
-				//TODO: 从二级缓存中加载
-				return null;
-			}
-		});
+			});
+		}
+		else
+			cache = builder.build();
+				
+		log.info("Cache initialized: name="+name+",size="+size+",ttl="+ttl+",overflow="+overflow);
 	}
 
 	@Override
@@ -90,6 +111,11 @@ public class CacheHolderImpl implements CacheHolder {
 	@Override
 	public void destroy() throws CacheException {
 		cache.invalidateAll();
+	}
+	
+	@Override
+	public String name(){
+		return this.name;
 	}
 
 	private String name;

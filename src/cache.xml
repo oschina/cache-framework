@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <oscache>
 
-	<provider name="disk" class="net.oschina.common.cache.provider.DiskCache">
+	<holder name="disk" class="net.oschina.common.cache.DiskCacheHolder">
     	<path>java.io.tmpdir</path>  	
-	</provider>
+	</holder>
 
-	<provider name="redis" class="net.oschina.common.cache.provider.RedisCache">
+	<holder name="redis" class="net.oschina.common.cache.RedisCacheHolder">
 		<host>192.168.1.10</host>
-		<port>5555</port>	    	
-	</provider>
+		<port>5555</port>  	
+	</holder>
 	
 	<!--
 		name: 缓存名称

@@ -6,15 +6,17 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 定义了缓存接口
+ * 一级缓存接口(内存)
  * @author liudong
  */
 public interface CacheHolder {
+	
+	public String name();
 
 	/**
 	 * 缓存初始化
 	 */
-	public void init();
+	public void init(OSCacheConfig cfg) throws CacheException;
 	
 	/**
 	 * 读取缓存对象

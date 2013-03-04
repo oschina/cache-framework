@@ -1,14 +1,13 @@
 package net.oschina.common.cache;
 
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.ExtendedBaseRules;
-import org.xml.sax.SAXException;
+import org.apache.commons.io.IOUtils;
 
 /**
  * 缓存配置信息
@@ -16,43 +15,57 @@ import org.xml.sax.SAXException;
  */
 public class OSCacheConfig {
 
-	private List<CacheProvider> providers;
-	private List<CacheHolder> caches;
+	private HashMap<String, OverflowCacheHolder> holders;
+	private HashMap<String, CacheHolder> caches;
 	
 	private OSCacheConfig(){
-		providers = new ArrayList<CacheProvider>();
-		caches = new ArrayList<CacheHolder>();
+		holders = new HashMap<String, OverflowCacheHolder>();
+		caches = new HashMap<String, CacheHolder>();
 	}
 	
-	public static OSCacheConfig newInstance() throws IOException, SAXException {
-		return newInstance(OSCacheConfig.class.getResourceAsStream("/cache.xml"));
+	public static OSCacheConfig newInstance() {
+		OSCacheConfig cfg = newInstance(OSCacheConfig.class.getResourceAsStream("/cache.xml"));
+		cfg.init();
+		return cfg;
 	}
 	
-	public static OSCacheConfig newInstance(String configPath) throws IOException, SAXException {
+	private void init() {
+		for(OverflowCacheHolder holder : holders.values()){
+			holder.init();
+		}
+		for(CacheHolder cache : caches.values()){
+			cache.init(this);
+		}
+	}
+	
+	public static OSCacheConfig newInstance(String configPath) throws FileNotFoundException {
 		return newInstance(new FileInputStream(configPath));
 	}
 	
-	public void addProvider(CacheProvider pvd) {
-		providers.add(pvd);
+	public OverflowCacheHolder getHolder(String name){
+		return holders.get(name);
+	}
+	
+	public void addHolder(OverflowCacheHolder pvd) {
+		holders.put(pvd.name(), pvd);
 	}
 	
 	public void addCache(CacheHolder cache) {
-		cache.init();
-		caches.add(cache);
+		caches.put(cache.name(), cache);
 	}
 	
-	private static OSCacheConfig newInstance(InputStream config) throws IOException, SAXException {
+	private static OSCacheConfig newInstance(InputStream config) {
 		OSCacheConfig cache = new OSCacheConfig();
 		Digester dig = new Digester();
 		dig.setValidating(false);
 		dig.setRules(new ExtendedBaseRules());
 		dig.push(cache);
 		
-		String key = "oscache/provider";
-		dig.addObjectCreate(key, "class", CacheProvider.class);
+		String key = "oscache/holder";
+		dig.addObjectCreate(key, "class", OverflowCacheHolder.class);
 		dig.addSetProperties(key);
 		dig.addBeanPropertySetter(key + "/?");
-		dig.addSetNext(key, "addProvider");
+		dig.addSetNext(key, "addHolder");
 
 		key = "oscache/cache";
 		dig.addObjectCreate(key, "class", CacheHolderImpl.class);
@@ -62,8 +75,10 @@ public class OSCacheConfig {
 		
 		try{
 			return (OSCacheConfig)dig.parse(config);
+		}catch(Exception e){
+			throw new CacheException("Unable to init cache", e);
 		}finally{
-			config.close();
+			IOUtils.closeQuietly(config);
 		}
 	}
 
