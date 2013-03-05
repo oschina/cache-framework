@@ -17,6 +17,7 @@ public class OSCacheConfig {
 
 	private HashMap<String, OverflowCacheHolder> holders;
 	private HashMap<String, CacheHolder> caches;
+	private CacheHolder defaultCache;
 	
 	private OSCacheConfig(){
 		holders = new HashMap<String, OverflowCacheHolder>();
@@ -49,9 +50,21 @@ public class OSCacheConfig {
 	public void addHolder(OverflowCacheHolder pvd) {
 		holders.put(pvd.name(), pvd);
 	}
+
+	public CacheHolder getCache(String name){
+		return caches.get(name);
+	}
 	
 	public void addCache(CacheHolder cache) {
 		caches.put(cache.name(), cache);
+	}
+	
+	public void setDefaultCache(CacheHolderImpl cache) {		
+		this.defaultCache = cache;
+	}
+	
+	public CacheHolder getDefaultCache(){
+		return this.defaultCache;
 	}
 	
 	private static OSCacheConfig newInstance(InputStream config) {
@@ -72,6 +85,12 @@ public class OSCacheConfig {
 		dig.addSetProperties(key);
 		dig.addBeanPropertySetter(key + "/?");
 		dig.addSetNext(key, "addCache");
+
+		key = "oscache/defaultCache";
+		dig.addObjectCreate(key, "class", CacheHolderImpl.class);
+		dig.addSetProperties(key);
+		dig.addBeanPropertySetter(key + "/?");
+		dig.addSetNext(key, "setDefaultCache");
 		
 		try{
 			return (OSCacheConfig)dig.parse(config);

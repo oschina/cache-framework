@@ -67,11 +67,6 @@ public interface CacheHolder {
 	/**
 	 * 清除所有缓存对象
 	 */
-	public void clear() throws CacheException;
-	
-	/**
-	 * 删掉缓存
-	 */
-	public void destroy() throws CacheException;
+	public void clear() throws CacheException;	
 	
 }

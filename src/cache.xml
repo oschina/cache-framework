@@ -16,9 +16,9 @@
 		ttl: 缓存对象的失效时间(单位:秒),0 表示永不失效
 		overflow: 超出size限制后的处理方法，对应 provider 配置 
 	-->	
-    <defaultCache size="1000" ttl="120" />
+    <defaultCache size="1000" ttl="120" overflow="disk"/>
     
-    <cache name="beans" size="1000" ttl="0" overflow="disk"/>
+    <cache name="beans" size="1000" ttl="0"/>
     <cache name="User" 	size="2000" ttl="120" overflow="disk"/>
 	
 </oscache>

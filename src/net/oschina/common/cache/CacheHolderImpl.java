@@ -11,6 +11,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.google.common.cache.Cache;
+import com.google.common.cache.CacheLoader.InvalidCacheLoadException;
+import com.google.common.cache.LoadingCache;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalCause;
@@ -39,7 +41,7 @@ public class CacheHolderImpl implements CacheHolder {
 			if(overflowCache == null)
 				throw new CacheException("Overflow cache holder not found: " + this.overflow);
 		}
-		
+
 		CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder();
 		builder.maximumSize(size);
 		if(ttl > 0)
@@ -49,21 +51,25 @@ public class CacheHolderImpl implements CacheHolder {
 			builder.removalListener(new RemovalListener<Serializable, Serializable>() {
 				public void onRemoval(RemovalNotification<Serializable, Serializable> removal) {
 					if(removal.getCause() == RemovalCause.SIZE){//因为超出内存限制被移除
-						//写入到磁盘
+						//写入到二级缓存
+						overflowCache.put(name, removal.getKey(), removal.getValue());
 					}
 					else 
 					if(removal.getCause() == RemovalCause.REPLACED){//因为替换数据而调用
-						//替换磁盘上的数据
+						//替换二级缓存上的数据
+						overflowCache.put(name, removal.getKey(), removal.getValue());
 					}
 					else{
-						//从磁盘上删除
+						//从二级缓存上删除
+						overflowCache.remove(name, removal.getKey());
+						System.out.println("remove!!!!!");
 					}
 				}
 			});
-			cache = builder.build(new CacheLoader<Serializable, Serializable>() {
+			cache =  builder.build(new CacheLoader<Serializable, Serializable>() {
 				public Serializable load(Serializable key) throws Exception {
-					//TODO: 从二级缓存中加载
-					return null;
+					//从二级缓存中加载
+					return (Serializable)overflowCache.get(name, key);
 				}
 			});
 		}
@@ -75,6 +81,13 @@ public class CacheHolderImpl implements CacheHolder {
 
 	@Override
 	public Object get(Serializable key) throws CacheException {
+		if(cache instanceof LoadingCache){
+			try{
+				return ((LoadingCache<Serializable,Serializable>)cache).getUnchecked(key);
+			}catch(InvalidCacheLoadException e){
+				return null;
+			}
+		}
 		return cache.getIfPresent(key);
 	}
 
@@ -86,11 +99,13 @@ public class CacheHolderImpl implements CacheHolder {
 	@Override
 	public void put(Serializable key, Serializable value) throws CacheException {
 		cache.put(key, value);
+		overflowCache.put(name, key, value);
 	}
 
 	@Override
 	public void puts(Map<Serializable, Serializable> objs) throws CacheException {
 		cache.putAll(objs);
+		overflowCache.puts(name, objs);
 	}
 
 	@Override
@@ -106,13 +121,9 @@ public class CacheHolderImpl implements CacheHolder {
 	@Override
 	public void clear() throws CacheException {
 		cache.invalidateAll();
+		overflowCache.clear(name);
 	}
 
-	@Override
-	public void destroy() throws CacheException {
-		cache.invalidateAll();
-	}
-	
 	@Override
 	public String name(){
 		return this.name;
