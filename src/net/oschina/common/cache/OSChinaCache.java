@@ -8,12 +8,15 @@ public class OSChinaCache {
 	
 	private final static OSCacheConfig config = OSCacheConfig.newInstance();
 	
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {		
 		CacheHolder cache = config.getCache("User");
 		
-		cache.put(12, "Winter Lau");
+		long ct = System.currentTimeMillis();
+		for(int i=0;i<99999;i++)
+			cache.put(i, "Winter Lau #" + i);
+		System.out.println(System.currentTimeMillis()-ct);
 		System.out.println(cache + ":" + cache.get(12));
-		cache.remove(12);
+		//cache.remove(12);
 	}
 
 }

@@ -2,7 +2,7 @@
 <oscache>
 
 	<holder name="disk" class="net.oschina.common.cache.DiskCacheHolder">
-    	<path>java.io.tmpdir</path>  	
+    	<path>D:/TEST/</path>  	
 	</holder>
 
 	<holder name="redis" class="net.oschina.common.cache.RedisCacheHolder">
